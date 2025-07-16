@@ -47,6 +47,21 @@ public class ChatServer {
 
     private static final Map<Integer, ClientHandler> loggedInUsers = new ConcurrentHashMap<>();
 
+
+    public  void notifyChatParticipants(int chatId, Response notificationResponse) {
+        try {
+            List<ChatParticipant> participants = chatParticipantDao.getChatParticipants(chatId);
+            for (ChatParticipant participant : participants) {
+                ClientHandler handler = loggedInUsers.get(participant.getUserId());
+                if (handler != null ) { // Don't send to self (sender)
+                    handler.out.println(notificationResponse.toJson());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error notifying chat participants: " + e.getMessage());
+        }
+    }
+
     // Map to temporarily store pending file transfer details
     // Key: unique transferId (UUID string), Value: FileTransferMetadata
     private final ConcurrentHashMap<String, FileTransferMetadata> pendingFileTransfers = new ConcurrentHashMap<>();
@@ -216,7 +231,7 @@ public class ChatServer {
 
                 if (totalBytesReceived == fileSize) {
                     System.out.println("\nFile '" + fileName + "' received successfully. Size: " + totalBytesReceived + " bytes.");
-                    fileOut.println("File transfer complete: " + fileName);
+                    fileOut.println("File transfer complete: " + transferId + "_" + fileName);
 
                     // Save the message to the database AFTER the file is fully received
                     Message message = new Message();
@@ -244,6 +259,7 @@ public class ChatServer {
                         message.setId(messageId);
                         // Notify all participants about the new media message
                         // (chatId, new Response(true, "New message received", gson.toJson(message)));
+                        notifyChatParticipants(chatId, new Response(true, "New message received", gson.toJson(message)));
                     } else {
                         System.err.println("Failed to save media message metadata to DB for file: " + fileName);
                     }
@@ -420,7 +436,9 @@ public class ChatServer {
                     case GET_FILE_BY_MEDIA:
                         response = handleGetFileByMedia(request.getPayload());
                         break;
-
+                    case GET_CHAT_UNREADMESSAGES:
+                        response = handlegetUnReadMessages(request.getPayload());
+                        break;
                     default:
                         response = new Response(false, "Unknown command: " + request.getCommand(), null);
                 }
@@ -525,10 +543,10 @@ public class ChatServer {
 
                     int messageId = messageDao.createMessage(message);
 
-                    if (messageId != -1) {
+                    if (messageId != -1 ) {
                         message.setId(messageId);
                         notifyChatParticipants(chatId, new Response(true, "New message received", gson.toJson(message)));
-                        return new Response(true, "Message sent successfully!", gson.toJson(message));
+                        return new Response(true, "Message sent successfully!", null);
                     } else {
                         return new Response(false, "Failed to send message.", null);
                     }
@@ -541,19 +559,19 @@ public class ChatServer {
 
 
         // --- Helper for broadcasting messages ---
-        public  void notifyChatParticipants(int chatId, Response notificationResponse) {
-            try {
-                List<ChatParticipant> participants = chatParticipantDao.getChatParticipants(chatId);
-                for (ChatParticipant participant : participants) {
-                    ClientHandler handler = loggedInUsers.get(participant.getUserId());
-                    if (handler != null && handler.currentUserId != currentUserId) { // Don't send to self (sender)
-                        handler.out.println(notificationResponse.toJson());
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error notifying chat participants: " + e.getMessage());
-            }
-        }
+//        public  void notifyChatParticipants(int chatId, Response notificationResponse) {
+//            try {
+//                List<ChatParticipant> participants = chatParticipantDao.getChatParticipants(chatId);
+//                for (ChatParticipant participant : participants) {
+//                    ClientHandler handler = loggedInUsers.get(participant.getUserId());
+//                    if (handler != null && handler.currentUserId != currentUserId) { // Don't send to self (sender)
+//                        handler.out.println(notificationResponse.toJson());
+//                    }
+//                }
+//            } catch (Exception e) {
+//                System.err.println("Error notifying chat participants: " + e.getMessage());
+//            }
+//        }
 
         // --- Existing and New Command Implementations (User Management) ---
 
@@ -711,6 +729,38 @@ public class ChatServer {
                 for (Message msg : messages) {
                     if (msg.getMediaId() != null){
                          Media media =new Media();
+                        msg.setMedia( mediaDao.getMediaById(msg.getMediaId().intValue()).get() );
+//                        System.out.println(media.toString());
+                    }
+                    if (msg.getSenderId() != currentUserId) {
+                        messageDao.incrementViewCount(msg.getId());
+                    }
+                    //notificationDao.markMessageNotificationsAsRead(currentUserId, msg.getId());
+                }
+
+                return new Response(true, "Messages retrieved.", gson.toJson(messages));
+            } catch (SQLException e) {
+                System.err.println("Error getting chat messages: " + e.getMessage());
+                return new Response(false, "Server error retrieving messages.", null);
+            }
+        }
+
+        private Response handlegetUnReadMessages(String payload) {
+            Type type = new TypeToken<Map<String, Double>>() {}.getType();
+            Map<String, Double> params = gson.fromJson(payload, type);
+            int chatId = params.get("chat_id").intValue();
+            int lastMessageId = params.get("lastMessageId").intValue();
+
+            try {
+                if (!chatParticipantDao.isUserParticipant(chatId, currentUserId)) {
+                    return new Response(false, "You are not a participant of this chat.", null);
+                }
+
+                List<Message> messages = messageDao.getMessagesAfterId(chatId, lastMessageId);
+
+                for (Message msg : messages) {
+                    if (msg.getMediaId() != null){
+                        Media media =new Media();
                         msg.setMedia( mediaDao.getMediaById(msg.getMediaId().intValue()).get() );
 //                        System.out.println(media.toString());
                     }

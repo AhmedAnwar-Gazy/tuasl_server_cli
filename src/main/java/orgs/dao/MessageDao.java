@@ -75,15 +75,14 @@ public class MessageDao {
         return messages;
     }
 
-    public List<Message> getMessagesAfterId(int chatId, int lastMessageId, int limit) {
+    public List<Message> getMessagesAfterId(int chatId, int lastMessageId) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT m.* FROM messages m WHERE m.chat_id = ? AND m.id > ? AND m.is_deleted = FALSE ORDER BY m.sent_at ASC LIMIT ?";
+        String sql = "SELECT m.* FROM messages m WHERE m.chat_id = ? AND m.id > ? AND m.is_deleted = FALSE ORDER BY m.sent_at ASC ";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, chatId);
             pstmt.setInt(2, lastMessageId);
-            pstmt.setInt(3, limit);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     messages.add(mapResultSetToMessage(rs));

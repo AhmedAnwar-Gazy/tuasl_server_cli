@@ -24,6 +24,8 @@ public enum Command {
     SEND_VIDEO,        // For videos (will involve file transfer)
     SEND_VOICE_NOTE,   // For voice notes (will involve file transfer)
     SEND_FILE,         // For general files (will involve file transfer)
+    GET_CHAT_UNREADMESSAGES,
+
 
     SEND_MESSAGE,
     GET_CHAT_MESSAGES,
@@ -50,6 +52,25 @@ public enum Command {
     MARK_NOTIFICATION_AS_READ,
     DELETE_NOTIFICATION,
 
+    // Video Call Management
+    INITIATE_VIDEO_CALL,    // Client A to Server: "I want to call User B"
+    VIDEO_CALL_OFFER,       // Server to Client B: "User A is calling you"
+    VIDEO_CALL_ANSWER,      // Client B to Server: "I accept/reject User A's call"
+    VIDEO_CALL_ACCEPTED,    // Server to Client A: "User B accepted" (includes B's UDP info)
+    VIDEO_CALL_REJECTED,    // Server to Client A: "User B rejected"
+    END_VIDEO_CALL,         // Client to Server: "End current call"
+    VIDEO_CALL_ENDED,       // Server to Client: "Call has ended"
+
+    // Optional: For advanced NAT traversal / ICE
+    ICE_CANDIDATE,          // Exchange of network candidates for direct connection
+    SDP_OFFER,              // Session Description Protocol offer
+    SDP_ANSWER,             // Session Description Protocol answer
+
+
     // Other
     UNKNOWN_COMMAND
+
+
+
+
 }
