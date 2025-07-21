@@ -1542,12 +1542,12 @@ public class ChatServer2 {
 
 
 
-    public void main(String[] args) {
+    public static  void main(String[] args) {
         System.out.println("Initializing database...");
         //DatabaseManager.initializeDatabase();
         System.out.println("Database initialized.");
 
         ChatServer2 server = new ChatServer2();
-        start();
+        server.start();
     }
 }
