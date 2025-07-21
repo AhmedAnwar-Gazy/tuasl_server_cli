@@ -6,31 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="f26c0c0d-27ef-45a8-948b-463de87e7dcd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/24155455-4941-42cc-80d0-4c8adc17188f_social.21443-1024x536.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/2b647660-8715-4453-9940-279be686d935_photo_2024-11-13_20-49-35.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/3359ac88-1c0e-49f2-8279-99653ca9faae_Screenshot 2025-05-20 225958.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/3781a121-3bc2-4717-87f7-e7b95dbf6e89_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/4dfb4fdb-7a61-4d24-8de7-4a73458fbb2d_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/5a2b1e6c-3407-4eca-b089-d16f13800c78_hgosatyah.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/6d12e935-d7bb-4233-b24a-fb8febd13121_058313810713_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/7f6034bb-7ed7-4054-b97d-eb6fca245892_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/8288bde5-2d83-4af2-8bc2-ea708a38257f_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/828e5e02-df2d-44a7-bfaf-7c284c01873d_sahehalbhary.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/94ceeb1b-f2ad-4a97-844d-4d4783c104da_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/991923ca-7955-4079-b6ab-c009dc625cba_almoata.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/9a72bdb0-230a-4687-90e7-26b8ad987a82_ui3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/9e0db590-5c18-4990-8a11-6eb155a7da24_sahehalbhary.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/b450b4eb-b5b1-4459-8ca7-87e86cd6b8ed_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/ce15af6f-56ff-44a5-b9b4-97f0c0581a1a_hgosatyah.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/d45531b7-41c8-470f-aa36-24ba74c19459_goBack.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/server_uploads/9d7b2a5c-1f4e-4e8c-8f1a-b3d2c1e0a9b8_vacation.mp4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/d720e49d-92be-430b-9277-ec75d86b6837_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/dd9a92a7-f9fd-4679-976c-4a9dc2dfe8da_Screenshot.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/f9ac4e48-f3ce-4a22-8fcb-bc1754e07d55_texts.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/null_2b647660-8715-4453-9940-279be686d935_photo_2024-11-13_20-49-35.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/null_6d12e935-d7bb-4233-b24a-fb8febd13121_058313810713_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/null_9a72bdb0-230a-4687-90e7-26b8ad987a82_ui3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server_uploads/null_ce15af6f-56ff-44a5-b9b4-97f0c0581a1a_hgosatyah.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/orgs/dao/MessageDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/orgs/dao/MessageDao.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/orgs/protocol/Command.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/orgs/protocol/Command.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/orgs/server/ChatServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/orgs/server/ChatServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/orgs/server/ChatServer2.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/orgs/server/ChatServer2.java" afterDir="false" />
@@ -59,29 +34,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ChatServer.executor": "Run",
-    "Application.ChatServer2.executor": "Run",
-    "Application.MediaDao.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/therdyear/java2/slaah/tuaslServer/server_uploads",
-    "onboarding.tips.debug.path": "E:/therdyear/java2/slaah/tuaslServer/src/main/java/orgs/Main.java",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ChatServer.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ChatServer2.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MediaDao.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/therdyear/java2/slaah/tuaslServer/server_uploads&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;E:/therdyear/java2/slaah/tuaslServer/src/main/java/orgs/Main.java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\therdyear\java2\slaah\tuaslServer\server_uploads" />
       <recent name="E:\therdyear\java2\slaah\tuaslServer\src\main\java\orgs" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ChatServer">
+  <component name="RunManager" selected="Application.ChatServer2">
     <configuration name="ChatServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="orgs.server.ChatServer" />
       <module name="tuaslServer" />
@@ -123,8 +98,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ChatServer" />
         <item itemvalue="Application.ChatServer2" />
+        <item itemvalue="Application.ChatServer" />
         <item itemvalue="Application.MediaDao" />
       </list>
     </recent_temporary>

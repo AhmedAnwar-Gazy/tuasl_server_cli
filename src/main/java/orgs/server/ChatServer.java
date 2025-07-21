@@ -77,8 +77,8 @@ public class ChatServer {
         String caption; // Now corresponds to Message.content for media messages
         String transferId; // Add transferId to metadata for easier lookup/logging
         int mediaID ;
-
-        public FileTransferMetadata(int senderId, int chatId, String fileName, long fileSize, String mediaType, String caption, String transferId ,int mediaID) {
+        Media messageMedia ;
+        public FileTransferMetadata(int senderId, int chatId, String fileName, long fileSize, String mediaType, String caption, String transferId ,int mediaID ,Media messageMedia) {
             this.senderId = senderId;
             this.chatId = chatId;
             this.fileName = fileName;
@@ -87,6 +87,7 @@ public class ChatServer {
             this.caption = caption;
             this.transferId = transferId;
             this.mediaID = mediaID ;
+            this.messageMedia = messageMedia ;
         }
     }
 
@@ -138,7 +139,7 @@ public class ChatServer {
                                     fileClientSocket, uploadMetadata.senderId, uploadMetadata.chatId,
                                     uploadMetadata.fileName, uploadMetadata.fileSize,
                                     uploadMetadata.mediaType, uploadMetadata.caption,
-                                    uploadMetadata.transferId, messageDao, ChatServer.this ,uploadMetadata.mediaID ));
+                                    uploadMetadata.transferId, messageDao, ChatServer.this ,uploadMetadata.mediaID ,uploadMetadata.messageMedia));
                             continue;
                         }
 
@@ -190,9 +191,9 @@ public class ChatServer {
         private MessageDao messageDao;
         private ChatServer server;
         private int mediaId ;// Reference to the outer class
+        private Media media;
 
-
-        public FileTransferHandler(Socket fileSocket, int senderId, int chatId, String fileName, long fileSize, String mediaType, String caption, String transferId, MessageDao messageDao, ChatServer server, int mediaId) {
+        public FileTransferHandler(Socket fileSocket, int senderId, int chatId, String fileName, long fileSize, String mediaType, String caption, String transferId, MessageDao messageDao, ChatServer server, int mediaId, Media media) {
             this.fileSocket = fileSocket;
             this.senderId = senderId;
             this.chatId = chatId;
@@ -204,6 +205,7 @@ public class ChatServer {
             this.messageDao = messageDao;
             this.server = server;
             this.mediaId =mediaId ;
+            this.media =media;
         }
 
         @Override
@@ -245,12 +247,6 @@ public class ChatServer {
                     message.setMessageType(mediaType);
 
                     // Create and set the Media object
-                    Media media = new Media();
-                    media.setMediaType(mediaType);
-                    media.setFileName(fileName);
-                    media.setFileSize(fileSize);
-                    media.setTransferId(transferId); // Use transferId as the unique media ID/path on server
-
                     message.setMedia(media);
 
                     int messageId = messageDao.createMessage(message);
@@ -439,6 +435,15 @@ public class ChatServer {
                     case GET_CHAT_UNREADMESSAGES:
                         response = handlegetUnReadMessages(request.getPayload());
                         break;
+                    case GET_USER_BY_ID:
+                        response = handlegetChatById(request.getPayload());
+                        break;
+                    case GET_USER_BY_PHONENUMBER:
+                        response = handlegetUserByPhoneNumber(request.getPayload());
+                        break;
+                    case GET_CHAT_BY_ID:
+                        response = handlegetUserById(request.getPayload());
+                        break;
                     default:
                         response = new Response(false, "Unknown command: " + request.getCommand(), null);
                 }
@@ -516,9 +521,10 @@ public class ChatServer {
                     mediaPayload.setFilePathOrUrl(transferId+"_"+mediaPayload.getFileName());
                     int mediaID = mediaDao.createMedia(mediaPayload);
                     System.out.println(" ************************* "+ mediaID);
+                    mediaPayload.setId(mediaID);
                     FileTransferMetadata metadata = new FileTransferMetadata(
                             currentUserId, chatId, mediaPayload.getFileName(), mediaPayload.getFileSize(),
-                            mediaPayload.getMediaType(), content, transferId ,mediaID // content is now the caption
+                            mediaPayload.getMediaType(), content, transferId ,mediaID ,mediaPayload// content is now the caption
                     );
                     pendingFileTransfers.put(transferId, metadata);
 
@@ -774,6 +780,44 @@ public class ChatServer {
             } catch (SQLException e) {
                 System.err.println("Error getting chat messages: " + e.getMessage());
                 return new Response(false, "Server error retrieving messages.", null);
+            }
+        }
+
+
+        private Response handlegetChatById(String payload) {
+            Type type = new TypeToken<Map<String, Object>>() {}.getType();
+            Map<String, Object> params = gson.fromJson(payload, type);
+            int chatId = ((Double)params.get("chat_id")).intValue();
+            Optional<Chat> chat = chatDao.getChatById(chatId);
+            if (chat.isPresent()) {
+                return new Response(true, "Chats retrieved by id.", gson.toJson(chat.get()));
+            } else {
+                return new Response(false, "Failed to remove contact.", null);
+            }
+        }
+
+
+        private Response handlegetUserById(String payload) {
+            Type type = new TypeToken<Map<String, Double>>() {}.getType();
+            Map<String, Double> params = gson.fromJson(payload, type);
+            int userId = (params.get("user_id")).intValue();
+            Optional<User> user = userDao.getUserById(userId);
+            if (user.isPresent()) {
+                return new Response(true, "User retrieved by id.", gson.toJson(user.get()));
+            } else {
+                return new Response(false, "Failed to remove contact.", null);
+            }
+        }
+
+        private Response handlegetUserByPhoneNumber(String payload) {
+            Type type = new TypeToken<Map<String, Object>>() {}.getType();
+            Map<String, Object> params = gson.fromJson(payload, type);
+            String UserPhoneNumber = (String)params.get("chat_phone_number");
+            Optional<User> user = userDao.getUserByPhoneNumber(UserPhoneNumber);
+            if (user.isPresent()) {
+                return new Response(true, "Chats retrieved by phone number.", gson.toJson(user.get()));
+            } else {
+                return new Response(false, "Failed to remove contact.", null);
             }
         }
 
@@ -1353,6 +1397,7 @@ public class ChatServer {
             return new Response(false, "Missing media ID or file name.", null);
         }
 
+
         // Construct the full file path on the server
         //String filePathOnServer = FileStorageManager.getUploadDirectory() + File.separator + mediaId + "_" + fileName;
         String filePathOnServer = FileStorageManager.getUploadDirectory() + File.separator + fileName;
@@ -1365,7 +1410,7 @@ public class ChatServer {
 
         // Store the download request metadata
         FileTransferMetadata downloadMetadata = new FileTransferMetadata(
-                -1, -1, fileName, fileToDownload.length(), mediaToTransfer.getMediaType(), null, mediaToTransfer.getFileName() ,mediaToTransfer.getId());
+                -1, -1, fileName, fileToDownload.length(), mediaToTransfer.getMediaType(), null, mediaToTransfer.getFileName() ,mediaToTransfer.getId(),mediaToTransfer);
 
         pendingFileDownloads.put(mediaId, downloadMetadata);
 

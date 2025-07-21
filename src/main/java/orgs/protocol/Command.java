@@ -26,6 +26,10 @@ public enum Command {
     SEND_FILE,         // For general files (will involve file transfer)
     GET_CHAT_UNREADMESSAGES,
 
+    GET_CHAT_BY_ID,
+    GET_USER_BY_PHONENUMBER,
+    GET_USER_BY_ID,
+
 
     SEND_MESSAGE,
     GET_CHAT_MESSAGES,

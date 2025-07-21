@@ -45,9 +45,9 @@ public class ChatServer2 {
             .serializeNulls()
             .create();
 
-    //private static final Map<Integer, ClientHandler> loggedInUsers = new ConcurrentHashMap<>();
+    //private static final Map<Integer, ClientHandler2> loggedInUsers = new ConcurrentHashMap<>();
     // In ChatServer class
-    private ConcurrentHashMap<Integer, ClientHandler> loggedInUsers = new ConcurrentHashMap<>(); // Already exists
+    private ConcurrentHashMap<Integer, ClientHandler2> loggedInUsers = new ConcurrentHashMap<>(); // Already exists
     // New: Map current active video calls (CallerId -> CalleeId) for direct P2P info exchange
     private ConcurrentHashMap<Integer, Integer> activeVideoCalls = new ConcurrentHashMap<>();
     // New: Map UserId to their discovered public IP and UDP port (Crucial for P2P media)
@@ -112,7 +112,7 @@ public class ChatServer2 {
                 ByteBuffer bBuffer = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
                 if (bBuffer.remaining() >= 4) { // Ensure enough bytes for recipient ID
                     int recipientId = bBuffer.getInt();
-                    ClientHandler recipientHandler = loggedInUsers.get(recipientId);
+                    ClientHandler2 recipientHandler = loggedInUsers.get(recipientId);
 
                     if (recipientHandler != null && userPublicIPs.containsKey(recipientId) && userUdpPorts.containsKey(recipientId)) {
                         InetAddress recipientAddress = InetAddress.getByName(userPublicIPs.get(recipientId));
@@ -155,8 +155,8 @@ public class ChatServer2 {
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
                     System.out.println("New client connected (command): " + clientSocket.getInetAddress().getHostAddress());
-                    ClientHandler clientHandler = new ClientHandler(clientSocket);
-                    commandPool.execute(clientHandler);
+                    ClientHandler2 ClientHandler2 = new ClientHandler2(clientSocket);
+                    commandPool.execute(ClientHandler2);
                 }
             } catch (IOException e) {
                 System.err.println("Command Server error: " + e.getMessage());
@@ -347,7 +347,7 @@ public class ChatServer2 {
     }
 
 
-    private class ClientHandler implements Runnable {
+    private class ClientHandler2 implements Runnable {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
@@ -355,7 +355,7 @@ public class ChatServer2 {
         private String clientPublicIp;
         private int clientUdpPort;
 
-        public ClientHandler(Socket socket) {
+        public ClientHandler2(Socket socket) {
             this.clientSocket = socket;
         }
 
@@ -639,7 +639,7 @@ public class ChatServer2 {
             try {
                 List<ChatParticipant> participants = chatParticipantDao.getChatParticipants(chatId);
                 for (ChatParticipant participant : participants) {
-                    ClientHandler handler = loggedInUsers.get(participant.getUserId());
+                    ClientHandler2 handler = loggedInUsers.get(participant.getUserId());
                     if (handler != null && handler.currentUserId != currentUserId) { // Don't send to self (sender)
                         handler.out.println(notificationResponse.toJson());
                     }
@@ -657,7 +657,7 @@ public class ChatServer2 {
 
             Type type = new TypeToken<Map<String, Object>>() {}.getType();
             Map<String, Object> callRequestPayload = gson.fromJson(payload, type);
-            System.out.println("gooooooooooooooooooooooooooooooo "+ callRequestPayload.toString());
+
             if (callRequestPayload != null) {
 
                 int targetUserId = Integer.parseInt(callRequestPayload.get("target_user_id").toString());
@@ -668,9 +668,10 @@ public class ChatServer2 {
                 userPublicIPs.put(currentUserId, clientPublicIp);
                 userUdpPorts.put(currentUserId, clientUdpPort);
 
-                ClientHandler targetHandler = loggedInUsers.get(targetUserId);
+                ClientHandler2 targetHandler = loggedInUsers.get(targetUserId);
 
 
+                System.out.println("the target id is "+targetUserId);
                 if (targetHandler != null && targetHandler.currentUserId != -1) {
                     // Notify target client about incoming call
                     Map<String, Object> offerData = new HashMap<>();
@@ -678,8 +679,11 @@ public class ChatServer2 {
                     offerData.put("caller_username", userDao.getUserById(currentUserId).get().getUsername());
                     offerData.put("caller_public_ip", this.clientPublicIp);
                     offerData.put("caller_udp_port", this.clientUdpPort);
-                    targetHandler.out.println(new Response(true, "VIDEO_CALL_OFFER", gson.toJson(offerData)));
-
+                    //targetHandler.out.println(new Response(true, "Message sent successfully!", null));
+                    Response response =new Response(true, "VIDEO_CALL_OFFER", gson.toJson(offerData));
+                    targetHandler.out.println(response.toJson());
+                    //targetHandler.out.println();
+                    System.out.println("this ip "+currentUserId+" call this ip "+targetUserId);
                     activeVideoCalls.put(currentUserId, targetUserId); // Mark call as pending
                     activeVideoCalls.put(targetUserId, currentUserId); // Bidirectional mapping
                     return new Response(true, "VIDEO_CALL_INITIATED", null); // Acknowledge to caller
@@ -709,7 +713,7 @@ public class ChatServer2 {
                 userPublicIPs.put(currentUserId, clientPublicIp);
                 userUdpPorts.put(currentUserId, clientUdpPort);
 
-                ClientHandler callerHandler = loggedInUsers.get(callerId);
+                ClientHandler2 callerHandler = loggedInUsers.get(callerId);
                 if (callerHandler != null && callerHandler.currentUserId != -1) {
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("callee_id", currentUserId);
@@ -718,12 +722,16 @@ public class ChatServer2 {
                     if (accepted) {
                         responseData.put("callee_public_ip", this.clientPublicIp);
                         responseData.put("callee_udp_port", this.clientUdpPort);
-                        callerHandler.out.println(new Response(true, "VIDEO_CALL_ACCEPTED", gson.toJson(responseData)));
+                        Response response =new Response(true, "VIDEO_CALL_ACCEPTED", gson.toJson(responseData));
+                       callerHandler.out.println(response.toJson());
+
                         return new Response(true, "CALL_ACCEPTED", null); // Acknowledge to callee
                     } else {
                         activeVideoCalls.remove(currentUserId); // Remove pending call
                         activeVideoCalls.remove(callerId);
-                        callerHandler.out.println(new Response(false, "VIDEO_CALL_REJECTED", gson.toJson(responseData)));
+                        Response response = new Response(false, "VIDEO_CALL_REJECTED", gson.toJson(responseData));
+                        callerHandler.out.println(response.toJson());
+
                         return new Response(true, "CALL_REJECTED", null); // Acknowledge to callee
                     }
                 } else {
@@ -742,7 +750,7 @@ public class ChatServer2 {
 
             if (endCallPayload != null) {
                 int targetUserId = ((Double) endCallPayload.get("target_user_id")).intValue();
-                ClientHandler targetHandler = loggedInUsers.get(targetUserId);
+                ClientHandler2 targetHandler = loggedInUsers.get(targetUserId);
 
                 activeVideoCalls.remove(currentUserId);
                 activeVideoCalls.remove(targetUserId);
@@ -750,7 +758,8 @@ public class ChatServer2 {
                 if (targetHandler != null) {
                     Map<String, Object> endedData = new HashMap<>();
                     endedData.put("ender_id", currentUserId);
-                    targetHandler.out.println(new Response(true, "VIDEO_CALL_ENDED", gson.toJson(endedData)));
+                    Response response = new Response(true, "VIDEO_CALL_ENDED", gson.toJson(endedData));
+                    targetHandler.out.println(response.toJson());
                 }
                 return new Response(true, "CALL_ENDED", null);
             } else {
